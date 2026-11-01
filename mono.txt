@@ -1,0 +1,85 @@
+MONOALPHABETIC CIPHER
+File: MONO.txt
+
+The substitution alphabet below is a fixed permutation of A-Z.
+
+PYTHON CODE
+-----------
+plain_alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+cipher_alphabet = "QWERTYUIOPASDFGHJKLZXCVBNM"
+
+text = input("Enter plaintext: ")
+encrypted = ""
+
+for ch in text:
+    upper = ch.upper()
+    if upper in plain_alphabet:
+        index = plain_alphabet.index(upper)
+        sub = cipher_alphabet[index]
+        encrypted += sub if ch.isupper() else sub.lower()
+    else:
+        encrypted += ch
+
+print("Encrypted:", encrypted)
+
+decrypted = ""
+for ch in encrypted:
+    upper = ch.upper()
+    if upper in cipher_alphabet:
+        index = cipher_alphabet.index(upper)
+        original = plain_alphabet[index]
+        decrypted += original if ch.isupper() else original.lower()
+    else:
+        decrypted += ch
+
+print("Decrypted:", decrypted)
+
+JAVA CODE
+---------
+import java.util.Scanner;
+
+class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        String plain = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        String cipher = "QWERTYUIOPASDFGHJKLZXCVBNM";
+
+        System.out.print("Enter plaintext: ");
+        String text = sc.nextLine();
+        String encrypted = "";
+
+        for (int i = 0; i < text.length(); i++) {
+            char ch = text.charAt(i);
+            char upper = Character.toUpperCase(ch);
+            int index = plain.indexOf(upper);
+            if (index >= 0) {
+                char sub = cipher.charAt(index);
+                encrypted += Character.isUpperCase(ch) ? sub : Character.toLowerCase(sub);
+            } else {
+                encrypted += ch;
+            }
+        }
+        System.out.println("Encrypted: " + encrypted);
+
+        String decrypted = "";
+        for (int i = 0; i < encrypted.length(); i++) {
+            char ch = encrypted.charAt(i);
+            char upper = Character.toUpperCase(ch);
+            int index = cipher.indexOf(upper);
+            if (index >= 0) {
+                char original = plain.charAt(index);
+                decrypted += Character.isUpperCase(ch) ? original : Character.toLowerCase(original);
+            } else {
+                decrypted += ch;
+            }
+        }
+        System.out.println("Decrypted: " + decrypted);
+        sc.close();
+    }
+}
+
+EXAMPLE
+-------
+Plaintext: BAD
+Encrypted: WQR
+Decrypted: BAD

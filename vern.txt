@@ -1,0 +1,61 @@
+VERNAM CIPHER (BYTEWISE XOR)
+File: VERN.txt
+
+This version uses bytewise XOR. Enter simple English/ASCII text and a key
+having exactly the same number of bytes as the plaintext. The ciphertext is
+shown in hexadecimal so that all byte values can be displayed safely.
+
+PYTHON CODE
+-----------
+text = input("Enter plaintext (ASCII): ")
+key = input("Enter key (same length as plaintext): ")
+
+plain_bytes = text.encode("ascii")
+key_bytes = key.encode("ascii")
+if len(plain_bytes) != len(key_bytes):
+    raise ValueError("Key must have the same byte length as plaintext.")
+
+cipher_bytes = bytes(plain_bytes[i] ^ key_bytes[i] for i in range(len(plain_bytes)))
+print("Ciphertext (hex):", cipher_bytes.hex().upper())
+
+decrypted_bytes = bytes(cipher_bytes[i] ^ key_bytes[i] for i in range(len(cipher_bytes)))
+print("Decrypted:", decrypted_bytes.decode("ascii"))
+
+JAVA CODE
+---------
+import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
+
+class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter plaintext (ASCII): ");
+        String text = sc.nextLine();
+        System.out.print("Enter key (same length as plaintext): ");
+        String key = sc.nextLine();
+
+        byte[] plain = text.getBytes(StandardCharsets.US_ASCII);
+        byte[] keyBytes = key.getBytes(StandardCharsets.US_ASCII);
+        if (plain.length != keyBytes.length) {
+            System.out.println("Key must have the same byte length as plaintext.");
+            sc.close();
+            return;
+        }
+
+        byte[] cipher = new byte[plain.length];
+        for (int i = 0; i < plain.length; i++) cipher[i] = (byte) (plain[i] ^ keyBytes[i]);
+
+        String hex = "";
+        for (byte b : cipher) hex += String.format("%02X", b & 0xFF);
+        System.out.println("Ciphertext (hex): " + hex);
+
+        byte[] decrypted = new byte[cipher.length];
+        for (int i = 0; i < cipher.length; i++) decrypted[i] = (byte) (cipher[i] ^ keyBytes[i]);
+        System.out.println("Decrypted: " + new String(decrypted, StandardCharsets.US_ASCII));
+        sc.close();
+    }
+}
+
+NOTE
+----
+XOR is reversible: (plaintext XOR key) XOR the same key = plaintext.

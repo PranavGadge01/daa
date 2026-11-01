@@ -1,0 +1,71 @@
+HILL CIPHER (2 x 2 KEY)
+File: HILL.txt
+
+This easy version uses the fixed key matrix [[3,3],[2,5]].
+Its inverse modulo 26 is [[15,17],[20,9]]. Input is converted to uppercase;
+spaces are removed. If needed, X is added to make an even number of letters.
+
+PYTHON CODE
+-----------
+key = [[3, 3], [2, 5]]
+inverse_key = [[15, 17], [20, 9]]
+
+text = input("Enter text: ").upper()
+text = "".join(ch for ch in text if 'A' <= ch <= 'Z')
+if len(text) % 2 == 1:
+    text += "X"
+
+action = input("Encrypt or decrypt? (E/D): ").upper()
+matrix = key if action == "E" else inverse_key
+result = ""
+
+for i in range(0, len(text), 2):
+    x = ord(text[i]) - ord('A')
+    y = ord(text[i + 1]) - ord('A')
+
+    first = (matrix[0][0] * x + matrix[0][1] * y) % 26
+    second = (matrix[1][0] * x + matrix[1][1] * y) % 26
+
+    result += chr(first + ord('A'))
+    result += chr(second + ord('A'))
+
+print("Result:", result)
+
+JAVA CODE
+---------
+import java.util.Scanner;
+
+class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int[][] key = {{3, 3}, {2, 5}};
+        int[][] inverseKey = {{15, 17}, {20, 9}};
+
+        System.out.print("Enter text: ");
+        String text = sc.nextLine().toUpperCase().replaceAll("[^A-Z]", "");
+        if (text.length() % 2 == 1) text += "X";
+
+        System.out.print("Encrypt or decrypt? (E/D): ");
+        String action = sc.nextLine().toUpperCase();
+        int[][] matrix = action.equals("E") ? key : inverseKey;
+        String result = "";
+
+        for (int i = 0; i < text.length(); i += 2) {
+            int x = text.charAt(i) - 'A';
+            int y = text.charAt(i + 1) - 'A';
+
+            int first = (matrix[0][0] * x + matrix[0][1] * y) % 26;
+            int second = (matrix[1][0] * x + matrix[1][1] * y) % 26;
+
+            result += (char) (first + 'A');
+            result += (char) (second + 'A');
+        }
+        System.out.println("Result: " + result);
+        sc.close();
+    }
+}
+
+EXAMPLE
+-------
+With this key, plaintext HI encrypts to TC.
+Decrypting TC returns HI.

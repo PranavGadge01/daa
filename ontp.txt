@@ -1,0 +1,59 @@
+ONE-TIME PAD
+File: ONTP.txt
+
+A One-Time Pad uses a truly random key of the same length as the message.
+The key must be kept secret and must never be reused. This example uses
+bytewise XOR and generates a fresh random key automatically.
+
+PYTHON CODE
+-----------
+import secrets
+
+text = input("Enter plaintext (ASCII): ")
+plain = text.encode("ascii")
+key = secrets.token_bytes(len(plain))
+
+cipher = bytes(plain[i] ^ key[i] for i in range(len(plain)))
+print("One-time key (hex):", key.hex().upper())
+print("Ciphertext (hex):", cipher.hex().upper())
+
+decrypted = bytes(cipher[i] ^ key[i] for i in range(len(cipher)))
+print("Decrypted:", decrypted.decode("ascii"))
+
+JAVA CODE
+---------
+import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
+import java.util.Scanner;
+
+class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter plaintext (ASCII): ");
+        String text = sc.nextLine();
+        byte[] plain = text.getBytes(StandardCharsets.US_ASCII);
+
+        byte[] key = new byte[plain.length];
+        new SecureRandom().nextBytes(key);
+
+        byte[] cipher = new byte[plain.length];
+        for (int i = 0; i < plain.length; i++) cipher[i] = (byte) (plain[i] ^ key[i]);
+
+        String keyHex = "", cipherHex = "";
+        for (int i = 0; i < key.length; i++) keyHex += String.format("%02X", key[i] & 0xFF);
+        for (int i = 0; i < cipher.length; i++) cipherHex += String.format("%02X", cipher[i] & 0xFF);
+
+        System.out.println("One-time key (hex): " + keyHex);
+        System.out.println("Ciphertext (hex): " + cipherHex);
+
+        byte[] decrypted = new byte[cipher.length];
+        for (int i = 0; i < cipher.length; i++) decrypted[i] = (byte) (cipher[i] ^ key[i]);
+        System.out.println("Decrypted: " + new String(decrypted, StandardCharsets.US_ASCII));
+        sc.close();
+    }
+}
+
+IMPORTANT
+---------
+Save the key securely for the receiver. A One-Time Pad is only perfectly secure
+when the key is truly random, as long as the message, secret, and used once.

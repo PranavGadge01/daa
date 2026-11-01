@@ -1,0 +1,101 @@
+MILLER-RABIN PRIMALITY TEST
+File: MRAB.txt
+
+This probabilistic test writes n-1 = d * 2^s, where d is odd.
+If a base passes a round, continue with another base. A composite result is
+certain; a passing result is only PROBABLY PRIME.
+
+PYTHON CODE
+-----------
+import random
+
+n = int(input("Enter number: "))
+rounds = 5
+
+if n < 2:
+    print("Composite")
+elif n in (2, 3):
+    print("Prime")
+elif n % 2 == 0:
+    print("Composite")
+else:
+    d = n - 1
+    s = 0
+    while d % 2 == 0:
+        d //= 2
+        s += 1
+
+    probably_prime = True
+    for i in range(rounds):
+        a = random.randint(2, n - 2)
+        x = pow(a, d, n)
+        if x == 1 or x == n - 1:
+            continue
+
+        for j in range(s - 1):
+            x = pow(x, 2, n)
+            if x == n - 1:
+                break
+        else:
+            probably_prime = False
+            break
+
+    print("Probably Prime" if probably_prime else "Composite")
+
+JAVA CODE
+---------
+import java.math.BigInteger;
+import java.util.Random;
+import java.util.Scanner;
+
+class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        Random random = new Random();
+        System.out.print("Enter number: ");
+        int n = sc.nextInt();
+        int rounds = 5;
+
+        if (n < 2) {
+            System.out.println("Composite");
+        } else if (n == 2 || n == 3) {
+            System.out.println("Prime");
+        } else if (n % 2 == 0) {
+            System.out.println("Composite");
+        } else {
+            int d = n - 1;
+            int s = 0;
+            while (d % 2 == 0) {
+                d /= 2;
+                s++;
+            }
+
+            boolean probablyPrime = true;
+            BigInteger N = BigInteger.valueOf(n);
+            for (int i = 0; i < rounds; i++) {
+                int a = random.nextInt(n - 3) + 2;
+                BigInteger x = BigInteger.valueOf(a).modPow(BigInteger.valueOf(d), N);
+                if (x.equals(BigInteger.ONE) || x.equals(N.subtract(BigInteger.ONE))) continue;
+
+                boolean passed = false;
+                for (int j = 0; j < s - 1; j++) {
+                    x = x.multiply(x).mod(N);
+                    if (x.equals(N.subtract(BigInteger.ONE))) {
+                        passed = true;
+                        break;
+                    }
+                }
+                if (!passed) {
+                    probablyPrime = false;
+                    break;
+                }
+            }
+            System.out.println(probablyPrime ? "Probably Prime" : "Composite");
+        }
+        sc.close();
+    }
+}
+
+EXAMPLE
+-------
+Input 13 should pass as probably prime. Input 9 should be detected as composite.

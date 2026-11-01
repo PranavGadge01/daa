@@ -1,0 +1,94 @@
+COLUMNAR TRANSPOSITION (NUMERIC KEY)
+File: COLU.txt
+
+This follows the PDF's column-order method. Enter a numeric permutation such
+as 4312. The digits give the reading order of the columns. Spaces are removed;
+X is added as padding when required. Decryption displays the padding X.
+
+PYTHON CODE
+-----------
+text = input("Enter text: ").replace(" ", "").upper()
+key = input("Enter numeric key (example 4312): ")
+
+columns = len(key)
+if columns < 2 or not key.isdigit() or sorted(key) != [str(i) for i in range(1, columns + 1)]:
+    raise ValueError("Key must be a permutation such as 4312.")
+
+action = input("Encrypt or decrypt? (E/D): ").upper()
+rows = (len(text) + columns - 1) // columns
+
+if action == "E":
+    text = text.ljust(rows * columns, "X")
+    grid = [text[i:i + columns] for i in range(0, len(text), columns)]
+    result = ""
+    for order in range(1, columns + 1):
+        col = key.index(str(order))
+        for row in range(rows):
+            result += grid[row][col]
+else:
+    grid = [[""] * columns for _ in range(rows)]
+    index = 0
+    for order in range(1, columns + 1):
+        col = key.index(str(order))
+        for row in range(rows):
+            grid[row][col] = text[index]
+            index += 1
+    result = "".join("".join(row) for row in grid)
+
+print("Result:", result)
+
+JAVA CODE
+---------
+import java.util.Scanner;
+
+class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter text: ");
+        String text = sc.nextLine().replace(" ", "").toUpperCase();
+        System.out.print("Enter numeric key (example 4312): ");
+        String key = sc.nextLine();
+        int columns = key.length();
+
+        boolean valid = columns >= 2 && key.matches("[1-9]+")
+                && key.chars().distinct().count() == columns;
+        if (valid) {
+            for (int i = 1; i <= columns; i++) if (key.indexOf((char) ('0' + i)) < 0) valid = false;
+        }
+        if (!valid) {
+            System.out.println("Key must be a permutation such as 4312.");
+            sc.close();
+            return;
+        }
+
+        System.out.print("Encrypt or decrypt? (E/D): ");
+        String action = sc.nextLine().toUpperCase();
+        int rows = (text.length() + columns - 1) / columns;
+        String result = "";
+
+        if (action.equals("E")) {
+            while (text.length() < rows * columns) text += "X";
+            char[][] grid = new char[rows][columns];
+            for (int i = 0; i < text.length(); i++) grid[i / columns][i % columns] = text.charAt(i);
+            for (int order = 1; order <= columns; order++) {
+                int col = key.indexOf((char) ('0' + order));
+                for (int r = 0; r < rows; r++) result += grid[r][col];
+            }
+        } else {
+            char[][] grid = new char[rows][columns];
+            int index = 0;
+            for (int order = 1; order <= columns; order++) {
+                int col = key.indexOf((char) ('0' + order));
+                for (int r = 0; r < rows; r++) grid[r][col] = text.charAt(index++);
+            }
+            for (int r = 0; r < rows; r++) for (int c = 0; c < columns; c++) result += grid[r][c];
+        }
+        System.out.println("Result: " + result);
+        sc.close();
+    }
+}
+
+EXAMPLE
+-------
+Use a numeric key such as 4312. Encrypt the padded rows by reading columns
+in the order 3, 2, 1, 4 (the column labels are 4, 3, 1, 2).

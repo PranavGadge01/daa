@@ -1,0 +1,106 @@
+VIGENERE CIPHER (POLYALPHABETIC SUBSTITUTION)
+File: VIGE.txt
+
+The keyword repeats over the letters of the plaintext. Spaces and punctuation
+are kept and do not consume a key letter.
+
+PYTHON CODE
+-----------
+text = input("Enter plaintext: ")
+key = input("Enter keyword: ").upper()
+if not key or not key.isalpha():
+    raise ValueError("Keyword must contain letters only.")
+
+result = ""
+key_index = 0
+for ch in text:
+    if ch.isalpha() and ch.isascii():
+        shift = ord(key[key_index % len(key)]) - ord('A')
+        if ch.isupper():
+            result += chr((ord(ch) - ord('A') + shift) % 26 + ord('A'))
+        else:
+            result += chr((ord(ch) - ord('a') + shift) % 26 + ord('a'))
+        key_index += 1
+    else:
+        result += ch
+
+print("Encrypted:", result)
+
+# Decrypt the result using the same key.
+decrypted = ""
+key_index = 0
+for ch in result:
+    if ch.isalpha() and ch.isascii():
+        shift = ord(key[key_index % len(key)]) - ord('A')
+        if ch.isupper():
+            decrypted += chr((ord(ch) - ord('A') - shift) % 26 + ord('A'))
+        else:
+            decrypted += chr((ord(ch) - ord('a') - shift) % 26 + ord('a'))
+        key_index += 1
+    else:
+        decrypted += ch
+
+print("Decrypted:", decrypted)
+
+JAVA CODE
+---------
+import java.util.Scanner;
+
+class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter plaintext: ");
+        String text = sc.nextLine();
+        System.out.print("Enter keyword: ");
+        String key = sc.nextLine().toUpperCase();
+
+        if (key.isEmpty() || !key.matches("[A-Z]+")) {
+            System.out.println("Keyword must contain letters A-Z only.");
+            sc.close();
+            return;
+        }
+
+        String encrypted = "";
+        int keyIndex = 0;
+        for (int i = 0; i < text.length(); i++) {
+            char ch = text.charAt(i);
+            if (ch >= 'A' && ch <= 'Z') {
+                int shift = key.charAt(keyIndex % key.length()) - 'A';
+                encrypted += (char) ((ch - 'A' + shift) % 26 + 'A');
+                keyIndex++;
+            } else if (ch >= 'a' && ch <= 'z') {
+                int shift = key.charAt(keyIndex % key.length()) - 'A';
+                encrypted += (char) ((ch - 'a' + shift) % 26 + 'a');
+                keyIndex++;
+            } else {
+                encrypted += ch;
+            }
+        }
+        System.out.println("Encrypted: " + encrypted);
+
+        String decrypted = "";
+        keyIndex = 0;
+        for (int i = 0; i < encrypted.length(); i++) {
+            char ch = encrypted.charAt(i);
+            if (ch >= 'A' && ch <= 'Z') {
+                int shift = key.charAt(keyIndex % key.length()) - 'A';
+                decrypted += (char) ((ch - 'A' - shift + 26) % 26 + 'A');
+                keyIndex++;
+            } else if (ch >= 'a' && ch <= 'z') {
+                int shift = key.charAt(keyIndex % key.length()) - 'A';
+                decrypted += (char) ((ch - 'a' - shift + 26) % 26 + 'a');
+                keyIndex++;
+            } else {
+                decrypted += ch;
+            }
+        }
+        System.out.println("Decrypted: " + decrypted);
+        sc.close();
+    }
+}
+
+EXAMPLE
+-------
+Plaintext: ATTACKATDAWN, key: LEMON
+Encrypted: LXFOPVEFRNHR
+Decrypted: ATTACKATDAWN

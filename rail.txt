@@ -1,0 +1,107 @@
+RAIL FENCE TRANSPOSITION CIPHER
+File: RAIL.txt
+
+This program works with any rail count of 2 or more. Spaces are removed and
+text is converted to uppercase for this simple classroom version.
+
+PYTHON CODE
+-----------
+text = input("Enter text: ").replace(" ", "").upper()
+rails = int(input("Enter number of rails: "))
+if rails < 2:
+    raise ValueError("Number of rails must be at least 2.")
+
+action = input("Encrypt or decrypt? (E/D): ").upper()
+
+# Record which rail each character belongs to.
+pattern = []
+row = 0
+direction = 1
+for i in range(len(text)):
+    pattern.append(row)
+    if row == 0:
+        direction = 1
+    elif row == rails - 1:
+        direction = -1
+    row += direction
+
+if action == "E":
+    rail_text = [""] * rails
+    for i in range(len(text)):
+        rail_text[pattern[i]] += text[i]
+    result = "".join(rail_text)
+else:
+    counts = [pattern.count(r) for r in range(rails)]
+    rail_text = []
+    start = 0
+    for count in counts:
+        rail_text.append(text[start:start + count])
+        start += count
+    positions = [0] * rails
+    result = ""
+    for r in pattern:
+        result += rail_text[r][positions[r]]
+        positions[r] += 1
+
+print("Result:", result)
+
+JAVA CODE
+---------
+import java.util.Scanner;
+
+class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter text: ");
+        String text = sc.nextLine().replace(" ", "").toUpperCase();
+        System.out.print("Enter number of rails: ");
+        int rails = sc.nextInt();
+        sc.nextLine();
+        if (rails < 2) {
+            System.out.println("Number of rails must be at least 2.");
+            sc.close();
+            return;
+        }
+        System.out.print("Encrypt or decrypt? (E/D): ");
+        String action = sc.nextLine().toUpperCase();
+
+        int[] pattern = new int[text.length()];
+        int row = 0, direction = 1;
+        for (int i = 0; i < text.length(); i++) {
+            pattern[i] = row;
+            if (row == 0) direction = 1;
+            else if (row == rails - 1) direction = -1;
+            row += direction;
+        }
+
+        String result = "";
+        if (action.equals("E")) {
+            StringBuilder[] railText = new StringBuilder[rails];
+            for (int r = 0; r < rails; r++) railText[r] = new StringBuilder();
+            for (int i = 0; i < text.length(); i++) railText[pattern[i]].append(text.charAt(i));
+            for (int r = 0; r < rails; r++) result += railText[r].toString();
+        } else {
+            int[] counts = new int[rails];
+            for (int r : pattern) counts[r]++;
+            String[] railText = new String[rails];
+            int start = 0;
+            for (int r = 0; r < rails; r++) {
+                railText[r] = text.substring(start, start + counts[r]);
+                start += counts[r];
+            }
+            int[] positions = new int[rails];
+            for (int i = 0; i < pattern.length; i++) {
+                int r = pattern[i];
+                result += railText[r].charAt(positions[r]);
+                positions[r]++;
+            }
+        }
+        System.out.println("Result: " + result);
+        sc.close();
+    }
+}
+
+EXAMPLE
+-------
+Plaintext: WEAREDISCOVEREDFLEEATONCE, rails: 3
+Encrypt then decrypt using the same rail count.

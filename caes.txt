@@ -1,0 +1,77 @@
+CAESAR CIPHER
+File: CAES.txt
+
+PYTHON CODE
+-----------
+text = input("Enter plaintext: ")
+key = int(input("Enter key: ")) % 26
+
+encrypted = ""
+for ch in text:
+    if 'A' <= ch <= 'Z':
+        encrypted += chr((ord(ch) - ord('A') + key) % 26 + ord('A'))
+    elif 'a' <= ch <= 'z':
+        encrypted += chr((ord(ch) - ord('a') + key) % 26 + ord('a'))
+    else:
+        encrypted += ch
+
+print("Encrypted:", encrypted)
+
+decrypted = ""
+for ch in encrypted:
+    if 'A' <= ch <= 'Z':
+        decrypted += chr((ord(ch) - ord('A') - key) % 26 + ord('A'))
+    elif 'a' <= ch <= 'z':
+        decrypted += chr((ord(ch) - ord('a') - key) % 26 + ord('a'))
+    else:
+        decrypted += ch
+
+print("Decrypted:", decrypted)
+
+JAVA CODE
+---------
+import java.util.Scanner;
+
+class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter plaintext: ");
+        String text = sc.nextLine();
+        System.out.print("Enter key: ");
+        int key = Math.floorMod(sc.nextInt(), 26);
+
+        String encrypted = "";
+        for (int i = 0; i < text.length(); i++) {
+            char ch = text.charAt(i);
+            if (ch >= 'A' && ch <= 'Z') {
+                encrypted += (char) ((ch - 'A' + key) % 26 + 'A');
+            } else if (ch >= 'a' && ch <= 'z') {
+                encrypted += (char) ((ch - 'a' + key) % 26 + 'a');
+            } else {
+                encrypted += ch;
+            }
+        }
+        System.out.println("Encrypted: " + encrypted);
+
+        String decrypted = "";
+        for (int i = 0; i < encrypted.length(); i++) {
+            char ch = encrypted.charAt(i);
+            if (ch >= 'A' && ch <= 'Z') {
+                decrypted += (char) ((ch - 'A' - key + 26) % 26 + 'A');
+            } else if (ch >= 'a' && ch <= 'z') {
+                decrypted += (char) ((ch - 'a' - key + 26) % 26 + 'a');
+            } else {
+                decrypted += ch;
+            }
+        }
+        System.out.println("Decrypted: " + decrypted);
+        sc.close();
+    }
+}
+
+EXAMPLE
+-------
+Plaintext: HELLO, key: 3
+Encrypted: KHOOR
+Decrypted: HELLO
