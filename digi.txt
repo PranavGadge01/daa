@@ -1,0 +1,252 @@
+
+import hashlib
+import random
+
+
+# =====================================
+# RSA DIGITAL SIGNATURE
+# =====================================
+
+def generate_rsa_keys():
+
+    # Two small prime numbers (educational use)
+    p = 61
+    q = 53
+
+    n = p * q
+    phi = (p - 1) * (q - 1)
+
+    # Public exponent
+    e = 17
+
+    # Private exponent
+    d = 2753
+
+    public_key = (e, n)
+    private_key = (d, n)
+
+    return public_key, private_key
+
+
+def rsa_sign(message, private_key):
+
+    d, n = private_key
+
+    # Generate message hash
+    message_hash = int(
+        hashlib.sha256(message.encode()).hexdigest(), 16
+    ) % n
+
+    # Sign using private key
+    signature = pow(message_hash, d, n)
+
+    return signature
+
+
+def rsa_verify(message, signature, public_key):
+
+    e, n = public_key
+
+    # Generate hash of received message
+    message_hash = int(
+        hashlib.sha256(message.encode()).hexdigest(), 16
+    ) % n
+
+    # Verify using public key
+    verified_hash = pow(signature, e, n)
+
+    return message_hash == verified_hash
+
+
+# =====================================
+# ECDSA DIGITAL SIGNATURE
+# =====================================
+
+# Small educational elliptic curve:
+# y² = x³ + 2x + 2 (mod 17)
+
+P = 17
+A = 2
+
+G = (5, 1)
+N = 19
+
+
+def point_add(p1, p2):
+
+    if p1 is None:
+        return p2
+
+    if p2 is None:
+        return p1
+
+    x1, y1 = p1
+    x2, y2 = p2
+
+    if x1 == x2 and (y1 + y2) % P == 0:
+        return None
+
+    if p1 == p2:
+
+        slope = (
+            (3 * x1 * x1 + A) *
+            pow(2 * y1, -1, P)
+        ) % P
+
+    else:
+
+        slope = (
+            (y2 - y1) *
+            pow((x2 - x1) % P, -1, P)
+        ) % P
+
+    x3 = (slope * slope - x1 - x2) % P
+    y3 = (slope * (x1 - x3) - y1) % P
+
+    return (x3, y3)
+
+
+def point_multiply(k, point):
+
+    result = None
+
+    for i in range(k):
+        result = point_add(result, point)
+
+    return result
+
+
+def generate_ecdsa_keys():
+
+    # Alice's private key
+    private_key = 7
+
+    # Public key = private key × generator point
+    public_key = point_multiply(private_key, G)
+
+    return private_key, public_key
+
+
+def ecdsa_sign(message, private_key):
+
+    message_hash = int(
+        hashlib.sha256(message.encode()).hexdigest(), 16
+    )
+
+    # Random nonce
+    k = random.randint(1, N - 1)
+
+    point = point_multiply(k, G)
+
+    r = point[0] % N
+
+    s = (
+        pow(k, -1, N) *
+        (message_hash + r * private_key)
+    ) % N
+
+    return (r, s)
+
+
+def ecdsa_verify(message, signature, public_key):
+
+    r, s = signature
+
+    if not (1 <= r < N and 1 <= s < N):
+        return False
+
+    message_hash = int(
+        hashlib.sha256(message.encode()).hexdigest(), 16
+    )
+
+    w = pow(s, -1, N)
+
+    u1 = (message_hash * w) % N
+    u2 = (r * w) % N
+
+    point1 = point_multiply(u1, G)
+    point2 = point_multiply(u2, public_key)
+
+    result = point_add(point1, point2)
+
+    if result is None:
+        return False
+
+    return result[0] % N == r
+
+
+# =====================================
+# MAIN EXPERIMENT
+# =====================================
+
+print("========== DIGITAL SIGNATURE EXPERIMENT ==========")
+
+# Alice's message
+message = "Transfer Rs.5007 to Account 1007"
+
+print("\nOriginal Message:", message)
+
+
+# =====================================
+# RSA
+# =====================================
+
+print("\n========== RSA DIGITAL SIGNATURE ==========")
+
+rsa_public, rsa_private = generate_rsa_keys()
+
+rsa_signature = rsa_sign(message, rsa_private)
+
+print("Alice signs using her PRIVATE key.")
+
+if rsa_verify(message, rsa_signature, rsa_public):
+    print("Bob verifies using Alice's PUBLIC key.")
+    print("RSA Signature: VALID")
+else:
+    print("RSA Signature: INVALID")
+
+
+# =====================================
+# ECDSA
+# =====================================
+
+print("\n========== ECDSA DIGITAL SIGNATURE ==========")
+
+ec_private, ec_public = generate_ecdsa_keys()
+
+ec_signature = ecdsa_sign(message, ec_private)
+
+print("Alice signs using her PRIVATE key.")
+
+if ecdsa_verify(message, ec_signature, ec_public):
+    print("Bob verifies using Alice's PUBLIC key.")
+    print("ECDSA Signature: VALID")
+else:
+    print("ECDSA Signature: INVALID")
+
+
+# =====================================
+# TAMPERING TEST
+# =====================================
+
+print("\n========== TAMPERING TEST ==========")
+
+modified_message = "Transfer Rs.9000 to Account 1007"
+
+print("Modified Message:", modified_message)
+
+# RSA tampering test
+if rsa_verify(modified_message, rsa_signature, rsa_public):
+    print("RSA: Signature VALID")
+else:
+    print("RSA: TAMPERING DETECTED")
+
+
+# ECDSA tampering test
+if ecdsa_verify(modified_message, ec_signature, ec_public):
+    print("ECDSA: Signature VALID")
+else:
+    print("ECDSA: TAMPERING DETECTED")
+
+
+print("\n========== EXPERIMENT COMPLETED ==========")
