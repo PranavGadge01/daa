@@ -1,0 +1,219 @@
+# ==========================================
+# 1. RSA ALGORITHM
+# ==========================================
+
+print("\n========== RSA ==========")
+
+# Key generation
+p = 919
+q = 647
+
+n = p * q
+phi = (p - 1) * (q - 1)
+
+e = 5
+d = 355817
+
+public_key = (e, n)
+private_key = (d, n)
+
+message = 7122
+
+print("Public Key:", public_key)
+print("Private Key:", private_key)
+
+# Encryption
+ciphertext = pow(message, e, n)
+
+print("Original Message:", message)
+print("Encrypted Message:", ciphertext)
+
+# Decryption
+decrypted = pow(ciphertext, d, n)
+
+print("Decrypted Message:", decrypted)
+
+if decrypted == message:
+    print("RSA: Successful")
+
+
+# ==========================================
+# 2. ELGAMAL ENCRYPTION
+# ==========================================
+
+print("\n========== ELGAMAL ==========")
+
+# Key generation
+p = 18773
+g = 2
+
+x = 5565                       # Private key
+y = pow(g, x, p)               # Public key
+
+print("Public Key:", (p, g, y))
+print("Private Key:", x)
+
+message = 7122
+
+# Encryption
+k = 9336                       # Random ephemeral key
+
+c1 = pow(g, k, p)
+c2 = (message * pow(y, k, p)) % p
+
+print("Original Message:", message)
+print("Ciphertext:", (c1, c2))
+
+# Decryption
+shared = pow(c1, x, p)
+
+decrypted = (
+    c2 * pow(shared, -1, p)
+) % p
+
+print("Decrypted Message:", decrypted)
+
+if decrypted == message:
+    print("ElGamal: Successful")
+
+
+# ==========================================
+# 3. DIFFIE-HELLMAN KEY EXCHANGE
+# ==========================================
+
+print("\n========== DIFFIE-HELLMAN ==========")
+
+# Common public parameters
+p = 919
+g = 7
+
+# Alice's private and public keys
+a = 549
+A = pow(g, a, p)
+
+# Bob's private and public keys
+b = 653
+B = pow(g, b, p)
+
+print("Alice's Private Key:", a)
+print("Alice's Public Key:", A)
+
+print("Bob's Private Key:", b)
+print("Bob's Public Key:", B)
+
+# Both calculate the shared secret
+alice_secret = pow(B, a, p)
+bob_secret = pow(A, b, p)
+
+print("Alice's Shared Secret:", alice_secret)
+print("Bob's Shared Secret:", bob_secret)
+
+if alice_secret == bob_secret:
+    print("Diffie-Hellman: Shared Secret Matched")
+
+
+# ==========================================
+# 4. ELLIPTIC CURVE CRYPTOGRAPHY (ECC)
+# ==========================================
+
+print("\n========== ECC ==========")
+
+# Small educational elliptic curve:
+# y^2 = x^3 + 2x + 2 (mod 17)
+
+P = 17
+A = 2
+
+# Generator point
+G = (5, 1)
+
+
+# Add two elliptic curve points
+def point_add(p1, p2):
+
+    if p1 is None:
+        return p2
+
+    if p2 is None:
+        return p1
+
+    x1, y1 = p1
+    x2, y2 = p2
+
+    # Inverse points
+    if x1 == x2 and (y1 + y2) % P == 0:
+        return None
+
+    # Same point: point doubling
+    if p1 == p2:
+
+        if y1 == 0:
+            return None
+
+        slope = (
+            (3 * x1 * x1 + A) *
+            pow(2 * y1, -1, P)
+        ) % P
+
+    # Different points
+    else:
+
+        slope = (
+            (y2 - y1) *
+            pow((x2 - x1) % P, -1, P)
+        ) % P
+
+    x3 = (slope * slope - x1 - x2) % P
+    y3 = (slope * (x1 - x3) - y1) % P
+
+    return (x3, y3)
+
+
+# Multiply a point by a number
+def point_multiply(k, point):
+
+    result = None
+
+    while k > 0:
+
+        if k % 2 == 1:
+            result = point_add(result, point)
+
+        point = point_add(point, point)
+
+        k = k // 2
+
+    return result
+
+
+# Alice and Bob generate their keys
+alice_private = 7
+bob_private = 11
+
+alice_public = point_multiply(alice_private, G)
+bob_public = point_multiply(bob_private, G)
+
+print("Generator Point:", G)
+
+print("Alice's Private Key:", alice_private)
+print("Alice's Public Key:", alice_public)
+
+print("Bob's Private Key:", bob_private)
+print("Bob's Public Key:", bob_public)
+
+# Calculate shared secret points
+alice_secret = point_multiply(alice_private, bob_public)
+bob_secret = point_multiply(bob_private, alice_public)
+
+print("Alice's Shared Point:", alice_secret)
+print("Bob's Shared Point:", bob_secret)
+
+if alice_secret == bob_secret:
+    print("ECC: Shared Secret Matched")
+
+
+# ==========================================
+# END
+# ==========================================
+
+print("\n========== EXPERIMENT COMPLETED ==========")
